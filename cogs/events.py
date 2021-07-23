@@ -27,6 +27,9 @@ class events(commands.Cog):
         self.mute_checker.start()
         self.memberCount.start()
 
+    def setup(client):
+        client.add_cog(events(client))
+
     def cog_unload(self):
         self.identification_check.cancel()
         self.identification_message.cancel()
@@ -43,10 +46,8 @@ class events(commands.Cog):
     async def on_ready(self):
         await _events._on_ready(self.client, GENERAL_CHANNEL_ID)
 
-#Member Joining
     @commands.Cog.listener() 
     async def on_member_join(self, member: discord.Member):
-
         await _events._on_member_join(
             self.client, 
             member, 
@@ -56,7 +57,6 @@ class events(commands.Cog):
             MEMBERCOUNT_CHANNEL_ID
         )
 
-#Member Leaving
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
         _events._on_member_remove(
@@ -222,6 +222,3 @@ class events(commands.Cog):
             #if before.raw_status == 'offline' and after.raw_status != 'offline':
                 #await counting.send('The Counting bot is back online. The channel is now unlocked.')
                 #await counting.set_permissions(guild.default_role, send_message = True)
-
-def setup(client):
-    client.add_cog(events(client))
