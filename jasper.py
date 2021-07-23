@@ -6,14 +6,21 @@ import datetime
 from discord.ext import commands
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from BotConfig import BotConfig
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 CONNECTION_URL = os.getenv('MONGODB_URL')
-PREFIX=os.getenv('BOT_PREFIX')
+
+PREFIX = BotConfig.prefix()
 
 intents = discord.Intents.all()
-client = commands.Bot(command_prefix = PREFIX, help_command = None, intents = intents, activity = discord.Activity(type = discord.ActivityType.watching, name = 'Over My Fellow Ghosts'))
+client = commands.Bot(
+    command_prefix = PREFIX, 
+    help_command = None, 
+    intents = intents, 
+    activity = discord.Activity(type = discord.ActivityType.watching, name = 'Over My Fellow Ghosts')
+)
 
 connection = MongoClient(CONNECTION_URL)
 db = connection["Jasper"]
@@ -47,7 +54,11 @@ async def hsd(ctx):
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
-        client.load_extension(f'cogs.{filename[:-3]}')
+        try:
+            client.load_extension(f'cogs.{filename[:-3]}')
+        except Exception as e:
+            print('Load err')
+            print(e)
 
 #Loading Cogs
 @client.command()

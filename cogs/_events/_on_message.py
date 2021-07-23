@@ -1,6 +1,7 @@
 import random
 import discord
 import datetime
+from BotConfig import BotConfig
 
 greetings = {
     "triggers": [
@@ -53,7 +54,7 @@ async def _on_message(client: discord.Client, message: discord.Message):
         date = datetime.datetime.now()
         dms = client.get_channel(857643372944293888)
 
-        embed = discord.Embed(title = 'DM Message', description = message.content, color = 0xFFCB00)
+        embed = discord.Embed(title = 'DM Message', description = message.content, color = BotConfig.embedColor())
         embed.set_author(name = message.author, icon_url = message.author.avatar_url)
         embed.add_field(name = 'Reply:', value = f'`!dm {message.author.id} `')
         embed.set_footer(text = f'{date:%B %d, %Y} at {date:%H:%M} EST', icon_url = 'https://cdn.discordapp.com/attachments/818494514867077144/844009816577146900/ghost.jpg')
@@ -62,10 +63,10 @@ async def _on_message(client: discord.Client, message: discord.Message):
     elif message.content == '69':
         await message.channel.trigger_typing()
         await message.channel.send('Nice')
-        await message.add_reaction('🇳')
-        await message.add_reaction('🇮')
-        await message.add_reaction('🇨')
-        await message.add_reaction('🇪')
+        reactions = ['🇳', '🇮', '🇨', '🇪']
+
+        for reaction in reactions:
+            await message.add_reaction(reaction)
 
     elif message.content == '100':
         await message.add_reaction('💯')
@@ -73,15 +74,12 @@ async def _on_message(client: discord.Client, message: discord.Message):
     elif message.content == '420':
         await message.channel.trigger_typing()
         await message.channel.send('Nice')
-        await message.add_reaction('🌿')
-        await message.add_reaction('🇳')
-        await message.add_reaction('🇮')
-        await message.add_reaction('🇨')
-        await message.add_reaction('🇪')
-        await message.add_reaction('😎')
+        reactions = ['🌿', '🇳', '🇮', '🇨', '🇪', '😎']
+
+        for reaction in reactions:
+            await message.add_reaction(reaction)
 
     elif client.user.mentioned_in(message):
-        await message.channel.trigger_typing()
         await message.channel.send('You pinged?')
 
     for el in triggerAndResponse:

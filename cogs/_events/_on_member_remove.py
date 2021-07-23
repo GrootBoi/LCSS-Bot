@@ -1,18 +1,19 @@
 import discord
+from BotConfig import BotConfig
 
-async def _on_member_remove(client: discord.Client, member: discord.Member, GUILD_ID: int, WELCOME_CHANNEL_ID: int, MEMBERCOUNT_CHANNEL_ID: int):
-    guild = client.get_guild(GUILD_ID)
-    welcomeChannel = client.get_channel(WELCOME_CHANNEL_ID)
-    membercountChannel = client.get_channel(MEMBERCOUNT_CHANNEL_ID)
+async def _on_member_remove(client: discord.Client, member: discord.Member):
+    guild = client.get_guild(BotConfig.serverID())
+    welcomeChannel = client.get_channel(BotConfig.channel_welcome())
+    membercountChannel = client.get_channel(BotConfig.channel_membercount())
 
-    if member.guild.id == GUILD_ID:
-        members = len([m for m in guild.members if not m.bot])
-        await membercountChannel.edit(reason = 'User Left', name = '👻 Member Count: ' + str(members))
+    if member.guild.id == BotConfig.serverID():
+        memberCount = len([m for m in guild.members if not m.bot])
+        await membercountChannel.edit(reason = 'User Left', name = '👻 Member Count: ' + str(memberCount))
 
         embed = discord.Embed(
             title = 'Goodbye fellow Golden Ghost!', 
             description = 'Sorry to see you go!', 
-            color = 0xFFCB00
+            color = BotConfig.embedColor()
         )
 
         #Fix hardcoded icon url
@@ -22,4 +23,5 @@ async def _on_member_remove(client: discord.Client, member: discord.Member, GUIL
         )
 
         embed.set_thumbnail(url = member.avatar_url)
+        
         await welcomeChannel.send(embed = embed)

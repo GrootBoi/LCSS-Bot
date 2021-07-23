@@ -1,17 +1,12 @@
 import discord
-import os
 import datetime
 
 from discord.ext import commands
+from discord.ext.commands.bot import Bot
 from discord.raw_models import RawMessageDeleteEvent
 from pytz import timezone
-from dotenv import load_dotenv
 
-load_dotenv()
-SERVER_ID = int(os.getenv('SERVER_ID'))
-LOG_CHANNEL_ID = int(os.getenv('LOG_CHANNEL_ID'))
-PUNISHMENT_CHANNEL_ID = int(os.getenv('PUNISHMENT_CHANNEL_ID'))
-BOTSETUP_CHANNEL_ID = int(os.getenv('BOTSETUP_CHANNEL_ID'))
+from BotConfig import BotConfig
 
 class logs(commands.Cog):
     def __init__(self, client):
@@ -19,7 +14,7 @@ class logs(commands.Cog):
 
     def logsEmbed(self, action, author, name, value):
         date = datetime.datetime.now()
-        embed = discord.Embed(title = action, color = 0xFFCB00)
+        embed = discord.Embed(title = action, color = BotConfig.embedColor())
         embed.set_author(name = author.name, icon_url = author.avatar_url)
         embed.add_field(name = name, value = value)
         embed.set_footer(text = f'{date:%B %d, %Y} at {date:%H:%M} EST', icon_url = 'https://cdn.discordapp.com/attachments/818494514867077144/844009816577146900/ghost.jpg')
@@ -35,7 +30,7 @@ class logs(commands.Cog):
         return embed 
 
     def logs(self):
-        logs = self.client.get_channel(LOG_CHANNEL_ID)
+        logs = self.client.get_channel(BotConfig.channel_log())
         return logs
     
 #User Join
@@ -43,7 +38,7 @@ class logs(commands.Cog):
     async def on_member_join(self, member: discord.Member):
         timezone_convert_creation = member.created_at.replace(tzinfo=timezone('UTC')).astimezone(timezone('US/Eastern'))
         creation = timezone_convert_creation.strftime('%B %d, %Y at %H:%M EST')
-        if member.guild.id == SERVER_ID:
+        if member.guild.id == BotConfig.serverID():
             await (self.logs()).send (embed = self.logsEmbed('Member Joined', member, 'Account Created:', creation))
 
 #User Leave
@@ -51,14 +46,14 @@ class logs(commands.Cog):
     async def on_member_leave(self, member: discord.Member):
         rolelist = [str(r.mention) for r in member.roles if r != member.guild.default_role]
         role = ", ".join(rolelist)
-        if member.guild.id == SERVER_ID:
+        if member.guild.id == BotConfig.serverID():
             await (self.logs()).send (embed = self.logsEmbed('Member Left', member, 'Roles:', role))
 
 #Edited Messages
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        logs = self.client.get_channel(LOG_CHANNEL_ID)
-        if before.guild.id == SERVER_ID:
+        logs = self.client.get_channel(BotConfig.channel_log())
+        if before.guild.id == BotConfig.serverID():
             date = datetime.datetime.now()
             embed = discord.Embed(title = 'Message Edited!', description = f'Message edited by: {before.author}', color = 0xFFCB00)
             embed.set_author(name = before.author, icon_url = before.author.avatar_url)
@@ -75,11 +70,11 @@ class logs(commands.Cog):
 #Deleted Messages
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload: RawMessageDeleteEvent):
-        logs = self.client.get_channel(LOG_CHANNEL_ID)
-        channel = self.client.get_channel(BOTSETUP_CHANNEL_ID)
-        if payload.guild_id == SERVER_ID:
+        logs = self.client.get_channel(BotConfig.channel_log())
+        channel = self.client.get_channel(BotConfig.channel_botsetup())
+        if payload.guild_id == BotConfig.serverID():
             date = datetime.datetime.now()
-            embed = discord.Embed(title = 'Message Deleted!', description = f'Message by: {payload.cached_message.author}', color = 0xFFCB00)
+            embed = discord.Embed(title = 'Message Deleted!', description = f'Message by: {payload.cached_message.author}', color = BotConfig.embedColor())
             try:
                 embed.set_author(name = payload.cached_message.author, icon_url = payload.cached_message.author.avatar_url)
                 if len(payload.cached_message.content) > 0:
@@ -99,7 +94,7 @@ class logs(commands.Cog):
         filelogs = open('C:\\Users\Flash123\Desktop\Jasper\BulkDeletes.txt', 'w')
         filelogs.write(f'Messages deleted at {date:%B %d, %Y} at {date:%H:%M} EST\n')
         filelogs.close()
-        if payload[0].guild.id == SERVER_ID:
+        if payload[0].guild.id == BotConfig.serverID():
             for message in list(payload):
                 filelogs = open('C:\\Users\Flash123\Desktop\Jasper\BulkDeletes.txt', 'a', encoding = 'utf-8')
                 if len(message.content) > 0:
@@ -115,21 +110,21 @@ class logs(commands.Cog):
 #Channel Created
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel):
-        if channel.guild.id == SERVER_ID:
+        if channel.guild.id == BotConfig.serverID():
             async for entry in channel.guild.audit_logs(limit = 1, action = discord.AuditLogAction.channel_create):
                 await (self.logs()).send(embed = self.logsChannelEmbed(channel, 'Created', entry))
         
 #Channel Deleted
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel):
-        if channel.guild.id == SERVER_ID:
+        if channel.guild.id == BotConfig.serverID():
             async for entry in channel.guild.audit_logs(limit = 1, action = discord.AuditLogAction.channel_delete):
                 await (self.logs()).send(embed = self.logsChannelEmbed(channel, 'Deleted', entry))
 
 #Channel Name Update
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before, after):
-        if before.guild.id == SERVER_ID:
+        if before.guild.id == BotConfig.serverID():
             async for entry in before.guild.audit_logs(limit = 1, action = discord.AuditLogAction.channel_update):
                 if before.name != after.name:
                     embed = self.logsChannelEmbed(before, 'Edited', entry)
@@ -139,7 +134,7 @@ class logs(commands.Cog):
 #Member Update
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if before.guild.id == SERVER_ID:
+        if before.guild.id == BotConfig.serverID():
             if len(before.roles) < len(after.roles):
                 newRole = next(r for r in after.roles if r not in before.roles)
                 await (self.logs()).send (embed = self.logsEmbed('Role Added', before, 'Added Role:', newRole.mention))
@@ -155,7 +150,7 @@ class logs(commands.Cog):
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
         for guilds in before.mutual_guilds:
-            if guilds.id == SERVER_ID:
+            if guilds.id == BotConfig.serverID():
                 if before.name != after.name or before.discriminator != after.discriminator:
                     embed = self.logsEmbed('Username Change', before, 'Old Username:', before.name)
                     embed.insert_field_at(index = 1, name = 'New Username:', value = after.name)
@@ -164,7 +159,7 @@ class logs(commands.Cog):
 #Voice Channel Updates
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        if member.guild.id == SERVER_ID:
+        if member.guild.id == BotConfig.serverID():
             if not before.channel and after.channel:
                 await (self.logs()).send(embed = self.logsEmbed('User Joined VC', member, 'Channel:', after.channel.mention))
             elif before.channel and not after.channel:
