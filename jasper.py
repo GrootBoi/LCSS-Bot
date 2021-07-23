@@ -7,7 +7,6 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 CONNECTION_URL = os.getenv('MONGODB_URL')

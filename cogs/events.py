@@ -1,23 +1,25 @@
 import discord
-import random
 import datetime
 import os
-from discord import message
+import cogs._events as _events
 
 from dotenv import load_dotenv
 from discord.ext import tasks, commands
 from jasper import db
 
 load_dotenv()
+
+#later, condense ids into a config object
 MEMBERCOUNT_CHANNEL_ID = int(os.getenv('MEMBERCOUNT_CHANNEL_ID'))
+WELCOME_CHANNEL_ID = int(os.getenv('WELCOME_CHANNEL_ID'))
 SERVER_ID = int(os.getenv('SERVER_ID'))
 LOG_CHANNEL_ID = int(os.getenv('LOG_CHANNEL_ID'))
 PUNISHMENT_CHANNEL_ID = int(os.getenv('PUNISHMENT_CHANNEL_ID'))
 BOTSETUP_CHANNEL_ID = int(os.getenv('BOTSETUP_CHANNEL_ID'))
 IDENTIFY_CHANNEL_ID = int(os.getenv('IDENTIFY_CHANNEL_ID'))
+GENERAL_CHANNEL_ID = int(os.getenv('GENERAL_CHANNEL_ID'))
 
 class events(commands.Cog):
-
     def __init__(self, client):
         self.client: discord.Client = client
         self.identification_check.start()
@@ -32,107 +34,37 @@ class events(commands.Cog):
         self.memberCount.cancel()
 
     mute = db["Mutes"]
-    
 
-#on_message
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        date = datetime.datetime.now()
-        dms = self.client.get_channel(857643372944293888)
-        hi = ['hello', 'hi', 'hey', 'howdy']
-        bye = ['bye', 'goodbye', 'bye bye', 'goodnight', 'gn', 'cya', 'see ya', 'adios', 'byee']
-        howareyou = ['how are you', 'how are you?', 'how r u', 'how are u', 'how r you', 'how r u?', 'how are u?', 'how r you?', 'whats up?', "what's up?", 'whats up', "what's up"]
-        disagreement = ['fuck you bot', 'shut up bot', 'shutup bot', 'fuck u bot', 'fuk you bot', 'fuck u bot', 'fuck off bot', 'fuk off bot']
-        if message.author == self.client.user or message.author.bot:
-            pass
-        elif message.guild == None:
-            embed = discord.Embed(title = 'DM Message', description = message.content, color = 0xFFCB00)
-            embed.set_author(name = message.author, icon_url = message.author.avatar_url)
-            embed.add_field(name = 'Reply:', value = f'`!dm {message.author.id} `')
-            embed.set_footer(text = f'{date:%B %d, %Y} at {date:%H:%M} EST', icon_url = 'https://cdn.discordapp.com/attachments/818494514867077144/844009816577146900/ghost.jpg')
-            await dms.send(embed = embed)
-        elif message.content.lower() in hi:
-            await message.channel.trigger_typing()
-            responses = ['Hello', 'Greetings!', 'Howdy', 'Hi!!', 'Hey', 'Helloooooo', 'sup', 'WASSSSUP', 'WAZZUP!', 'Yo!']
-            await message.channel.send(random.choice(responses))
-        elif message.content.lower() in bye:
-            await message.channel.trigger_typing()
-            responses = ['Bye!', 'Goodbye!', 'See ya!', 'Au revoir', 'k bye']
-            await message.channel.send(random.choice(responses))
-        elif message.content.lower() in howareyou:
-            await message.channel.trigger_typing()
-            responses = ['Good!', "I'm great!", 'Awesome!']
-            await message.channel.send(random.choice(responses) + ' How about you?')
-        elif message.content.lower() in disagreement:
-            await message.channel.trigger_typing()
-            responses = ['What did I do :(', 'Im sorry', 'screw you', 'fuck you', 'fuck off', 'ok fine', 'no u', ':(', '<@412316765918461955>']
-            await message.channel.send(random.choice(responses))
-        elif message.content == '69':
-            await message.channel.trigger_typing()
-            await message.channel.send('Nice')
-            await message.add_reaction('🇳')
-            await message.add_reaction('🇮')
-            await message.add_reaction('🇨')
-            await message.add_reaction('🇪')
-        elif message.content == '100':
-            await message.add_reaction('💯')
-        elif message.content == '420':
-            await message.channel.trigger_typing()
-            await message.channel.send('Nice')
-            await message.add_reaction('🌿')
-            await message.add_reaction('🇳')
-            await message.add_reaction('🇮')
-            await message.add_reaction('🇨')
-            await message.add_reaction('🇪')
-            await message.add_reaction('😎')
-        elif self.client.user.mentioned_in(message):
-            await message.channel.trigger_typing()
-            await message.channel.send('You pinged?')
+        await _events._on_message(self.client, message)
 
-#on_ready
-#Remember to renable on ready msgs !!!!
     @commands.Cog.listener()
     async def on_ready(self):
-        channel = self.client.get_channel(760284361814835200)
-        await channel.trigger_typing()
-        responses = ['DEAD BODY!!!! <@498176822404579330> has been killed, the suspect is still on the loose!', 'I am Online!', 'zoo wee mama',
-        'gooooooooooood morninnnnnnnnnnng ~~Vietnam~~ LCSS Discord', "<@536953999593701418> I didn't kill myself last night",
-        'Who is ready to either get hugged or killed?', 'Traceback Error: Uhh- idk what is happening',
-        "We're no strangers to love\nYou know the rules and so do I\nA full commitment's what I'm thinking of\nYou wouldn't get this from any other guy\nI just wanna tell you how I'm feeling\nGotta make you understand\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\nWe've known each other for so long\nYour heart's been aching but you're too shy to say it\nInside we both know what's been going on\nWe know the game and we're gonna play it\nAnd if you ask me how I'm feeling\nDon't tell me you're too blind to see\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\nNever gonna give, never gonna give\n(Give you up)\nWe've known each other for so long\nYour heart's been aching but you're too shy to say it\nInside we both know what's been going on\nWe know the game and we're gonna play it\nI just wanna tell you how I'm feeling\nGotta make you understand\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye\nNever gonna tell a lie and hurt you\nNever gonna give you up\nNever gonna let you down\nNever gonna run around and desert you\nNever gonna make you cry\nNever gonna say goodbye"]
-        # await channel.send(random.choice(responses))
+        await _events._on_ready(self.client, GENERAL_CHANNEL_ID)
 
 #Member Joining
     @commands.Cog.listener() 
     async def on_member_join(self, member: discord.Member):
-        guild = self.client.get_guild(700559773028057098)
-        welcome = self.client.get_channel(760278876059861073)
-        general = self.client.get_channel(760284361814835200)
-        vc = self.client.get_channel(MEMBERCOUNT_CHANNEL_ID)
-        if member.guild.id == 700559773028057098:
-            embed = discord.Embed(title = 'Welcome fellow Golden Ghost!', description = 'Please read <#700571972362567763> and enjoy your stay!\nAlso stop by <#700563120690561024> to get identified!', color = 0xFFCB00)
-            embed.set_author(name = f'{member.name}#{member.discriminator}', icon_url = 'https://cdn.discordapp.com/attachments/818494514867077144/844009816577146900/ghost.jpg')
-            embed.set_thumbnail(url = member.avatar_url)
-            await welcome.send(embed = embed)
-            members = len([m for m in guild.members if not m.bot])
-            await vc.edit(reason = 'New User', name = '👻 Member Count: ' + str(members))
-            try:
-                await member.send("Hello Golden Ghost, I am your friendly neighbourhood LCSS Bot! Welcome to the server and be sure to read <#700571972362567763>. Other than that enjoy your stay and I'll see you around!")
-            except discord.HTTPException:
-                await general.send(f"Hello {member.mention}! Since your DMs have been turned off, I'll do my little speech here. I am your friendly neighbourhood LCSS Bot! Welcome to the server and be sure to read <#700571972362567763>. Other than that enjoy your stay and I'll see you around!")
+
+        await _events._on_member_join(
+            self.client, 
+            member, 
+            SERVER_ID, 
+            WELCOME_CHANNEL_ID, 
+            GENERAL_CHANNEL_ID, 
+            MEMBERCOUNT_CHANNEL_ID
+        )
 
 #Member Leaving
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        guild = self.client.get_guild(700559773028057098)
-        welcome = self.client.get_channel(760278876059861073)
-        vc = self.client.get_channel(MEMBERCOUNT_CHANNEL_ID)
-        if member.guild.id == 700559773028057098:
-            members = len([m for m in guild.members if not m.bot])
-            await vc.edit(reason = 'User Left', name = '👻 Member Count: ' + str(members))
-            embed = discord.Embed(title = 'Goodbye fellow Golden Ghost!', description = 'Sorry to see you go!', color = 0xFFCB00)
-            embed.set_author(name = f'{member.name}#{member.discriminator}', icon_url = 'https://cdn.discordapp.com/attachments/818494514867077144/844009816577146900/ghost.jpg')
-            embed.set_thumbnail(url = member.avatar_url)
-            await welcome.send(embed = embed)
+        _events._on_member_remove(
+            self.client, member, 
+            SERVER_ID, 
+            WELCOME_CHANNEL_ID, 
+            MEMBERCOUNT_CHANNEL_ID
+        )
 
 #Identified Themself
     @commands.Cog.listener()
