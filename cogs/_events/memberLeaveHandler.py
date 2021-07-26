@@ -1,7 +1,7 @@
 import discord
 from BotConfig import BotConfig
 
-async def _on_member_remove(client: discord.Client, member: discord.Member):
+async def memberLeaveHandler(client: discord.Client, member: discord.Member):
     guild = client.get_guild(BotConfig.serverID())
     welcomeChannel = client.get_channel(BotConfig.channel_welcome())
     membercountChannel = client.get_channel(BotConfig.channel_membercount())

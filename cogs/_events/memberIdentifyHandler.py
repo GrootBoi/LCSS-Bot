@@ -1,12 +1,12 @@
 from BotConfig import BotConfig
 import discord
 
-async def _on_member_update(client: discord.Client, before: discord.Member, after: discord.Member):
-    guild = client.get_guild(BotConfig.serverID())
-    member = guild.get_member(before.id)
-    rolePleaseIdentify = discord.utils.get(guild.roles, name = 'Please Identify Yourself!')
+async def memberIdentifyHandler(client: discord.Client, before: discord.Member, after: discord.Member):
+    guild: discord.Guild = client.get_guild(BotConfig.serverID())
+    member = after
+    rolePleaseIdentify: discord.Role = discord.utils.get(guild.roles, name = 'Please Identify Yourself!')
 
-    identifiedRoles = map(
+    identifiedRoles: map[discord.Role] = map(
         lambda roleName: discord.utils.get(guild.roles, name = roleName), 
         ['Alumni', 'Grade 12', 'Grade 11', 'Grade 10', 'Other Schools']
     )

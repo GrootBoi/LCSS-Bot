@@ -45,7 +45,7 @@ disagreements = {
 
 triggerAndResponse = [greetings, farewells, howareyou, disagreements]
 
-async def _on_message(client: discord.Client, message: discord.Message):
+async def triggerMessageHandler(client: discord.Client, message: discord.Message):
     if message.author == client.user or message.author.bot:
         return
 

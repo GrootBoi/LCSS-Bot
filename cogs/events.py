@@ -1,7 +1,9 @@
 import discord
 import cogs._events as _events
+import datetime
 
 from discord.ext import commands
+from Utils import Utils
 
 def setup(client: discord.Client):
     client.add_cog(Events(client))
@@ -12,25 +14,47 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        #
-        await _events._on_message(self.client, message)
+        try:
+            #Bot listens to trigger words and responds (e.g., 420, 69, etc)
+            await _events.triggerMessageHandler(self.client, message)
+        except Exception as e: 
+            Utils.log_error(e)
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await _events._on_ready(self.client)
+        try:
+            #Logs on ready to console and sends a msg in general
+            await _events.readyHandler(self.client)
+        except Exception as e:
+            Utils.log_error(e)
 
     @commands.Cog.listener() 
     async def on_member_join(self, member: discord.Member):
-        await _events._on_member_join(self.client, member)
+        try:
+            await _events.welcomeHandler(self.client, member)
+        except Exception as e:
+            Utils.log_error(e)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        _events._on_member_remove(self.client, member)
+        try:
+            _events.memberLeaveHandler(self.client, member)
+        except Exception as e:
+            Utils.log_error(e)
 
-#Identified Themself
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        await _events._on_member_update(self.client, before, after)
+        try:
+            await _events.memberIdentifyHandler(self.client, before, after)
+        except Exception as e:
+            Utils.log_error(e)
+    
+    @commands.Cog.listener()
+    async def on_typing(self, channel: discord.TextChannel, member: discord.Member, when: datetime.datetime):
+        try:
+            await _events.shutUpBoyuan(channel, member)
+        except Exception as e:
+            Utils.log_error(e)
 
 
 #Rick Roll
